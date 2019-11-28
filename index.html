@@ -46,7 +46,7 @@ var timer = window.setInterval(() => {
     displayTime();      // ★displayTime 関数を実行
     drawPlayer();       // drawPlayer 関数を実行
     drawMeteo();        // ★drawMeteo 関数を実行
-}, ); // 33msごとに（1秒間に約30回）
+}, 100); // 33msごとに（1秒間に約30回）
  
 // ★ゲーム時間（スコア）を表示する displayTime 関数
 function displayTime() {
