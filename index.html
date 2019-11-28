@@ -4,70 +4,60 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>隕石をよけろ</title>
+<title>隕石をよけろ！</title>
 </head>
-
+ 
 <body>
-<div id="txt">ここにデータを表示</div>          <!-- データを表示するdiv要素 -->
+<div id="txt">ここにスコアを表示</div>             <!-- スコアを表示するdiv要素 -->
 <canvas id="canvas" width="300" height="400"></canvas>  <!-- ボールを描くcanvas要素 -->
-
+ 
 <script>
 var aX = 0, aY = 0, aZ = 0;                     // 加速度の値を入れる変数を3個用意
 var canvas = document.getElementById('canvas'); // canvas要素を取得 
 var context = canvas.getContext('2d');          // 絵を描く部品を取得
-
-// ★ボールをクラス化
+ 
+// ボールをクラス化
 class Ball {
     constructor() {                             // コンストラクタ（宣言した時に実行される関数）の定義
         this.x = 150;                           // x座標の初期値
         this.y = 200;                           // y座標の初期値
         this.radius = 20;                       // 半径の初期値
         this.color = "rgb(0, 0, 255)";          // 色の初期値
-        this.sp = 2;                            // 速さの係数
+        this.sp = 3;                            // 速さの係数
     }
 }
 var player = new Ball();                        // Ballクラスのインスタンス player を宣言
-
-
-var meteoNum = 5;                               //隕石の数
-var meteo = new Array(meteoNum);                //隕石の配列を宣言
-generateMeteo();                                //隕石を生成するgenerateを実行
-
-var gemeTime = 0;                               //ゲーム開始
-
-
+ 
+var meteoNum = 5;                               // ★隕石の数
+var meteo = new Array(meteoNum);                // ★隕石の配列を宣言
+generateMeteo();                                // ★隕石を生成する generateEnemies を実行
+ 
+var gameTime = 0;                               // ★ゲーム時間（スコア）
+ 
 // 加速度センサの値が変化したら実行される devicemotion イベント
 window.addEventListener("devicemotion", (dat) => {
     aX = dat.accelerationIncludingGravity.x;    // x軸の重力加速度（Android と iOSでは正負が逆）
     aY = dat.accelerationIncludingGravity.y;    // y軸の重力加速度（Android と iOSでは正負が逆）
     aZ = dat.accelerationIncludingGravity.z;    // z軸の重力加速度（Android と iOSでは正負が逆）
 });
-
+ 
 // 指定時間ごとに繰り返し実行される setInterval(実行する内容, 間隔[ms]) タイマーを設定
 var timer = window.setInterval(() => {
-    displayTime();      //displaytime関数を実行
-    displayData();      // displayData 関数を実行
+    displayTime();      // ★displayTime 関数を実行
     drawPlayer();       // drawPlayer 関数を実行
-}, 100); //
-
-
-//ゲーム時間を表示するdisplaytime関数
-function displayTime(){
-    gameTime +=1;
-    var txt =document.getElementById("txt");        //データを表じするdiv要素
-    txt.innerHTML = "Score:" +gameTim;
-    
-}
-
-// データを表示する displayData 関数
-function displayData() {
+    drawMeteo();        // ★drawMeteo 関数を実行
+}, 33); // 33msごとに（1秒間に約30回）
+ 
+// ★ゲーム時間（スコア）を表示する displayTime 関数
+function displayTime() {
+    gameTime += 1;
     var txt = document.getElementById("txt");   // データを表示するdiv要素の取得
-    txt.innerHTML = "x: " + aX + "<br>"         // x軸の値
-                  + "y: " + aY + "<br>"         // y軸の値
-                  + "z: " + aZ;                 // z軸の値
+    txt.innerHTML = "Score: " + gameTime;
 }
+ 
 
-// ★プレイヤを表示する drawPlayer 関数
+
+// プレイヤを表示する drawPlayer 関数
 function drawPlayer() {
     var os = navigator.platform;                // OS名の取得
     if(os === "iPhone" || os === "iPad" || os === "iPod") {     // iOSなら
@@ -102,7 +92,7 @@ function generateMeteo(){
         meteo[i] = new Ball();
         meteo[i].x = i*canvas.width / meteoNum + (canvas.width/meteoNum/2); //隕石の横方向の位置
         meteo[i].color = "rgb(0,0,0)";
-        
+        randomizeMeteo(meteo[i])   
     }
 
 }
@@ -110,7 +100,7 @@ function generateMeteo(){
 //隕石のプロパティをランダムに決めるrandomizemeteo関数
 function randomizeMeteo(obj){
     obj.y = Math.random()*(0 +canvas.height) - canvas.height;   //隕石のy座標
-    obj.radius = Math.random()*(canvas.width / meteoNum/2 - 10) +10;  //隕石の半径
+    obj.radius = Math.random()*(canvas.width / meteoNum /2 - 10) +10;  //隕石の半径
     obj.sp = Math.random() *(15-1) +1;  //隕石の速さ
 
 }
@@ -123,21 +113,21 @@ function drawMeteo(){
         if(collision(player,meteo[i]) === true){    //衝突判定結果がtrueなら
             window.clearInterval(timer);            //タイマーを止める
         }
-        if(meteo[i].y>canvas.height+meteo[i].radius){       //もし隕石が画面から消えたら
+        if(meteo[i].y>canvas.height + meteo[i].radius){       //もし隕石が画面から消えたら
             randomizeMeteo(meteo[i]);       //位置やサイズを初期化する
         }
         context.beginPath();                        // 描画開始
         context.arc(meteo[i].x,meteo[i].y,meteo[i].radius,  // 円を描く arc(x, y, 半径, 開始角度, 終了角度)
-                0, 2 * Math.PI);                // 角度の単位はラジアン（2π = 360度）で指定
-         context.fillStyle = meteo[i].color            // 塗りつぶす色の設定
-         context.fill(); 
-
+            0, 2 * Math.PI);                // 角度の単位はラジアン（2π = 360度）で指定
+        context.fillStyle = meteo[i].color            // 塗りつぶす色の設定
+        context.fill(); 
+    }
 }
 
 function collision(obj1,obj2){
     var dX = obj1.x - obj2.x;
     var dY = obj1.y - obj2.y;
-    var distance = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
+    var distance = Math.sqrt(Math.pow(dX,2)+Math.pow(dY,2));
     if (distance<(obj1.radius = obj2.radius)){
         return true;
     } else {
