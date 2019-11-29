@@ -52,16 +52,12 @@ function drawOrientation(){
     
     context.beginPath();
     context.moveTo(centerX, centerY);   //中心に移動
-    context.lineTo(centerX + Math.cos(radianAlpha - Math.Po /2) * radius,
+    context.lineTo(centerX + Math.cos(radianAlpha - Math.PI /2) * radius,
                         centerY +Math.sin(radianAlpha - Math.PI/2) *radius);
     context.strokeStyle = "rgb(255,0,0)";//針の線の色
     context.linewidth = 5;
     context.stroke();
-    
-
 }
-
-
 
 
 </script>
