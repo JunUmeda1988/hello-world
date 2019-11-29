@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ジャイロの値を得る</title>
+</head>
+ 
+<body>
+<div id="txt">ここにデータを表示</div>             <!-- データを表示するdiv要素 -->
+<canvas id="canvas" width="300" height="400"></canvas>  <!-- 絵を描く要素 -->
+
+<script>
+var alpha = 0, beta = 0, gamma = 0;             // ジャイロの値を入れる変数を3個用意
+var canvas = document.getElementById("canvas"); // ★canvas要素を取得 
+var context = canvas.getContext("2d");          // ★絵を描く部品を取得
+
+// ジャイロセンサの値が変化したら実行される deviceorientation イベント
+window.addEventListener("deviceorientation", (dat) => {
+    alpha = dat.alpha;  // z軸（表裏）まわりの回転の角度（反時計回りがプラス）
+    beta  = dat.beta;   // x軸（左右）まわりの回転の角度（引き起こすとプラス）
+    gamma = dat.gamma;  // y軸（上下）まわりの回転の角度（右に傾けるとプラス）
+});
+ 
+// 指定時間ごとに繰り返し実行される setInterval(実行する内容, 間隔[ms]) タイマーを設定
+var timer = window.setInterval(() => {
+    displayData();
+    drawOrientation();      // displayData 関数を実行
+}, 100); // 100msごとに（1秒間に約10回）
+ 
+// データを表示する displayData 関数
+function displayData() {
+    var txt = document.getElementById("txt");   // データを表示するdiv要素の取得
+    txt.innerHTML = "alpha: " + alpha.toFixed(3) + "<br>"  // x軸の値
+                  + "beta : " + beta.toFixed(3)  + "<br>"  // y軸の値
+                  + "gamma: " + gamma.toFixed(3);          // z軸の値
+}
+
+
+//コンパスのような絵を描くdrawOrientation関数
+function drawOrientation(){
+    var centerX = canvas.width /2;      //canvasの中心のx座標
+    var centerY = canvas.height /2;     //canvasの中心のy座標
+    var radius = 100;
+    var radianAlpha = alpha * Math.PI/180;
+    context.clearRect(0,0,canvas.width,canvas.height);  //canvasの内容を消すclearRect
+    context.beginPath();
+    context.arc(centerX,centerY,radius,0, 2*Math.PI);   //枠円を描く
+    context.strokeStyle = "rgb(0,0,0)"; //枠円の線の色
+    context.linewidth = 2;
+    context.stroke();                   //線を描画
+    
+    context.beginPath();
+    context.moveTo(centerX, centerY);   //中心に移動
+    context.lineTo(centerX + Math.cos(radianAlpha - Math.Po /2) * radius,
+                        centerY +Math.sin(radianAlpha - Math.PI/2) *radius);
+    context.strokeStyle = "rgb(255,0,0)";//針の線の色
+    context.linewidth = 5;
+    context.stroke();
+    
+
+}
+
+
+
+
+</script>
+</body>
+</html>
