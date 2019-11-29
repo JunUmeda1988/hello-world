@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8">
+        <title>ストップウォッチVer0.5</title>
+        <style type="text/css">
+            html {font-size:100%;}
+            body {
+                text-align: center;
+            }
+
+            #time {
+                font-size: 5rem;
+            }
+
+            #miritime {
+                font-size: 3rem;
+                padding-left: 0.5rem;
+            }
+            @media screen and (max-width: 600px) {
+                html {font-size:60%;}
+            }
+
+            @media screen and (max-width: 320px) {
+                html {font-size:30%;}
+            }
+
+
+        </style>
+    </head>
+    <body>
+        <p><span id="time">00:00</span><span id="miritime">000</span></p>
+        <input type="button" value="RESET" id="rest-button" onClick="push_reset();">
+        <input type="button" value="START" id="start-button" onClick="push_start();">
+
+        <script>
+            var startTime=0,
+                active=false,
+                timerID;
+
+            function push_start () {
+                if (active) {
+                    //ストップ処理
+                    clearTimeout(timerID);
+                    document.getElementById("start-button").value="START";
+                    active=false;
+                } else {
+                    //スタート処理
+                    startTime=(new Date()).getTime();
+                    active=true;
+                    document.getElementById("start-button").value="STOP";
+                    loop();
+                }
+            }
+
+            //リセット処理
+            function push_reset() {
+                if (active) {return;}
+                startTime=0;
+                document.getElementById("time").innerHTML="00:00";
+                document.getElementById("miritime").innerHTML="000";
+            }
+
+            //画面を表示する
+            function loop() {
+                var t=(new Date()).getTime()-startTime;
+                var min=Math.floor(t/60000);
+                if(min<10){min="0"+min;}
+                var sec=Math.floor((t%60000)/1000);
+                if(sec<10){sec="0"+sec;}
+                var mirisec=(t%60000)%1000;
+                if (mirisec<10) {
+                    mirisec="00"+mirisec;
+                } else if (mirisec<100) {
+                    mirisec="0"+mirisec;
+                }
+                document.getElementById("time").innerHTML=min+":"+sec;
+                document.getElementById("miritime").innerHTML=mirisec;
+                timerID=setTimeout("loop()",1);
+            }
+        </script>
+    </body>
+</html>
